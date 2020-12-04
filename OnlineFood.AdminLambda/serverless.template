@@ -1,0 +1,42 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Description": "An AWS Serverless Application.",
+  "Resources": {
+    "Get": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "OnlineFood.AdminLambda::OnlineFood.AdminLambda.GetCategoryFunction::GetCategory",
+        "Runtime": "dotnetcore3.1",
+        "CodeUri": "",
+        "MemorySize": 256,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": ["AWSLambdaBasicExecutionRole","AWSLambdaVPCAccessExecutionRole"],
+        "VpcConfig":{
+        "SecurityGroupIds":[{"Fn::ImportValue":"OnlineFoodSecurityGroup"}],
+        "SubnetIds":[
+        {"Fn::ImportValue":"OnlineFoodFirstSubnet"},
+        {"Fn::ImportValue":"OnlineFoodSecondSubnet"}]
+        },
+        "Events": {
+          "RootGet": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/GetCategory/{categoryId}",
+              "Method": "GET"
+            }
+          }
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ApiURL": {
+      "Description": "API endpoint URL for Prod environment",
+      "Value": {
+        "Fn::Sub": "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+      }
+    }
+  }
+}

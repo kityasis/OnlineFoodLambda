@@ -1,0 +1,89 @@
+{
+   "AWSTemplateFormatVersion":"2010-09-09",
+   "Transform":"AWS::Serverless-2016-10-31",
+   "Description":"An AWS Serverless Application.",
+   "Resources":{
+      "ConfigBucket":{
+         "Type":"AWS::S3::Bucket",
+         "Properties":{
+            "BucketName":"onlinefood-lambda-bucket"
+         }
+      },     
+      "DBSubnetGroup": {
+            "Type": "AWS::RDS::DBSubnetGroup",
+            "Properties": {
+                "DBSubnetGroupDescription": "OnlineFood DB Subnet Group",
+                "SubnetIds": [ {"Ref" : "SubnetA"},{"Ref" : "SubnetB"}]
+               
+            }
+        },
+      "DataBase":{
+         "Type":"AWS::RDS::DBInstance",
+         "Properties":{
+            "DBInstanceClass":"db.t2.micro",
+            "AllocatedStorage":"20",
+            "Engine":"sqlserver-ex",
+            "PubliclyAccessible":true,
+            "DBSubnetGroupName":{"Ref" : "DBSubnetGroup"},
+             "VPCSecurityGroups" : {"Ref" : "SecurityGroup"},
+            "MasterUsername":"admin",
+            "MasterUserPassword":"$Admin#1"
+         }
+      },
+      "VPC":{
+         "Type":"AWS::EC2::VPC",
+         "Properties":{
+            "CidrBlock":"10.0.0.0/16"            
+         }
+      },
+      "SubnetA" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+       "AvailabilityZone" : "ap-south-1a",
+       "VpcId" : { "Ref" : "VPC" },
+       "CidrBlock" : "10.0.0.0/24" 
+       }
+       },
+      "SubnetB" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+       "AvailabilityZone" : "ap-south-1b",
+       "VpcId" : { "Ref" : "VPC" },
+       "CidrBlock" : "10.0.1.0/24" 
+       }
+       },
+       "SecurityGroup" : {
+       "Type" : "AWS::EC2::SecurityGroup",
+       "Properties" : {
+       "GroupName" : "OnlineFoodSecurityGroup",
+      "GroupDescription" : "Security Group for  OnlineFood stack",      
+      "SecurityGroupIngress" : [{
+         "IpProtocol" : "-1",     
+         "CidrIp" : "0.0.0.0/0"
+      }],
+      "SecurityGroupEgress" : [{
+         "IpProtocol" : "-1",        
+         "CidrIp" : "0.0.0.0/0"
+      }],
+      "VpcId" : {"Ref" : "VPC"}
+      }
+      }
+   },
+   "Outputs": {
+    "OnlineFoodFirstSubnet": {
+      "Description": "The OnlineFood First Subnet",
+      "Value": {"Ref" : "SubnetA"},
+      "Export":{"Name":"OnlineFoodFirstSubnet"}
+    },
+     "OnlineFoodSecondSubnet": {
+      "Description": "The OnlineFood Second Subnet",
+      "Value": {"Ref" : "SubnetB"},
+      "Export":{"Name":"OnlineFoodSecondSubnet"}
+    },
+     "OnlineFoodSecurityGroup": {
+      "Description": "The OnlineFood Security Group",
+      "Value": {"Ref" : "SubnetA"},
+      "Export":{"Name":"OnlineFoodFirstSubnet"}
+    }
+  }
+}
